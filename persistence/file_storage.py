@@ -1,33 +1,30 @@
-# persistence/file_storage.py
 import json
-from models.base_model import BaseModel
-
+from models.user import User
+from datetime import datetime
 class FileStorage:
-    __file_path = "file.json"
+    __file_path = 'file.json'
     __objects = {}
-
-    def all(self):
-        return FileStorage.__objects
-
-    def new(self, obj):
-        key = "{}.{}".format(obj.__class__.__name__, obj.id)
-        FileStorage.__objects[key] = obj
-
-    def save(self):
-        new_dict = {}
-        for key, value in FileStorage.__objects.items():
-            new_dict[key] = value.to_dict()
-        with open(FileStorage.__file_path, "w") as f:
-            json.dump(new_dict, f)
-
-    def reload(self):
+    def save(self, obj):
+        key = obj.__class__.__name__ + '.' + obj.id
+        obj.updated_at = datetime.now()
+        self.__objects[key] = obj.to_dict()
+        self._save_to_file()
+    def get(self, obj_id, obj_type):
+        key = f'{obj_type}.{obj_id}'
+        return self.__objects.get(key)
+    def get_all(self, obj_type):
+        return [obj for key, obj in self.__objects.items() if key.startswith(obj_type)]
+    def delete(self, obj_id, obj_type):
+        key = f'{obj_type}.{obj_id}'
+        if key in self.__objects:
+            del self.__objects[key]
+            self._save_to_file()
+    def _save_to_file(self):
+        with open(self.__file_path, 'w') as f:
+            json.dump(self.__objects, f)
+    def _load_from_file(self):
         try:
-            with open(FileStorage.__file_path, "r") as f:
-                obj_dict = json.load(f)
-                for key, value in obj_dict.items():
-                    cls_name, obj_id = key.split(".")
-                    cls = eval(cls_name)
-                    obj = cls(**value)
-                    FileStorage.__objects[key] = obj
+            with open(self.__file_path, 'r') as f:
+                self.__objects = json.load(f)
         except FileNotFoundError:
-            pass
+            self.__objects = {}
