@@ -1,7 +1,7 @@
 from models.city import City
 from persistence.IPersistenceManager import IPersistenceManager
-import uuid
 from datetime import datetime
+import uuid
 
 class CityDataManager(IPersistenceManager):
     def __init__(self):
@@ -30,8 +30,8 @@ class CityDataManager(IPersistenceManager):
             if city.id == updated_city.id:
                 updated_city.updated_at = datetime.now()
                 self.cities[idx] = updated_city
-                return True
-        return False
+                return updated_city
+        return None
 
     def delete(self, city_id):
         for idx, city in enumerate(self.cities):

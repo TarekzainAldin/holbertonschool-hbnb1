@@ -4,12 +4,11 @@ import uuid
 from datetime import datetime
 
 class City(BaseModel):
-    def __init__(self, name, country):
+    def __init__(self, name, country_id):  # Update the constructor to accept country_id
         super().__init__()
         self.id = str(uuid.uuid4())  # Convert uuid to string
         self.name = name
-        self.country_id = country.id
-        self.country = country
+        self.country_id = country_id  # Assign country_id directly
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
         self.places = []
@@ -45,3 +44,12 @@ class City(BaseModel):
     def save_to_json(self, filename):
         with open(filename, 'w') as file:
             json.dump(self.to_json(), file)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "country_id": self.country_id,
+            "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S") if self.created_at else None,
+            "updated_at": self.updated_at.strftime("%Y-%m-%d %H:%M:%S") if self.updated_at else None
+        }
