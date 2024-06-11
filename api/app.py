@@ -2,11 +2,14 @@ from flask import Flask, request, jsonify
 from models.user import User
 from persistence.data_manager import DataManager
 from api.country_city_routes import country_city_bp
+from flask_restx import Api
+from api.amenity_routes import amenity_bp
 import re
 from datetime import datetime
 
 app = Flask(__name__)
 app.register_blueprint(country_city_bp, url_prefix='/api')
+app.register_blueprint(amenity_bp)
 data_manager = DataManager()
 
 def is_valid_email(email):
@@ -76,4 +79,5 @@ def delete_user(user_id):
     return jsonify({"error": "User not found"}), 404
 
 if __name__ == '__main__':
-    app.run(debug=True)
+   
+     app.run(debug=True)

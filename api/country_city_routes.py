@@ -1,62 +1,58 @@
-import unittest
-from unittest.mock import patch, MagicMock
-from api.app import app
+# country_city_routes.py
 from models.country import Country
+from flask import Blueprint, jsonify, request
+from persistence.country_data_manager import CountryDataManager
 
-class TestCountryCityAPI(unittest.TestCase):
+# Function to create the country_city_bp blueprint
+def create_country_city_bp():
+    country_city_bp = Blueprint('country_city_bp', __name__)
 
-    @patch('api.country_city_routes.country_manager', spec=MagicMock)
-    def test_get_countries(self, mock_country_manager):
-        mock_countries = [Country(name="Country1", code="C1"), Country(name="Country2", code="C2")]
-        mock_country_manager.get_all.return_value = mock_countries
+    country_manager = CountryDataManager()
 
-        with app.test_client() as client:
-            response = client.get('/api/countries')
+    @country_city_bp.route('/countries', methods=['GET'])
+    def get_countries():
+        countries = country_manager.get_all()
+        if countries:
+            return jsonify([country.to_dict() for country in countries]), 200
+        else:
+            return jsonify({"error": "No countries found"}), 404
 
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.json, [country.to_dict() for country in mock_countries])
+    @country_city_bp.route('/countries/<country_code>', methods=['GET'])
+    def get_country(country_code):
+        country = country_manager.get(country_code)
+        if country:
+            return jsonify(country.to_dict()), 200
+        else:
+            return jsonify({"error": "Country not found"}), 404
 
-    @patch('api.country_city_routes.country_manager', spec=MagicMock)
-    def test_get_country(self, mock_country_manager):
-        mock_country = Country(name="Country1", code="C1")
-        mock_country_manager.get.return_value = mock_country
+    @country_city_bp.route('/countries', methods=['POST'])
+    def create_country():
+        data = request.json
+        if not data or 'name' not in data or 'code' not in data:
+            return jsonify({"error": "Name and code are required"}), 400
 
-        with app.test_client() as client:
-            response = client.get('/api/countries/C1')
+        new_country = Country(name=data['name'], code=data['code'])
+        saved_country = country_manager.save(new_country)
+        return jsonify(saved_country.to_dict()), 201
 
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.json, mock_country.to_dict())
+    @country_city_bp.route('/countries/<country_code>', methods=['PUT'])
+    def update_country(country_code):
+        data = request.json
+        if not data or 'name' not in data:
+            return jsonify({"error": "Name is required"}), 400
 
-    @patch('api.country_city_routes.country_manager', spec=MagicMock)
-    def test_create_country(self, mock_country_manager):
-        mock_saved_country = Country(name="New Country", code="NC")
-        mock_country_manager.save.return_value = mock_saved_country
+        updated_country = country_manager.update(country_code, data['name'])
+        if updated_country:
+            return jsonify(updated_country.to_dict()), 200
+        else:
+            return jsonify({"error": "Country not found"}), 404
 
-        with app.test_client() as client:
-            response = client.post('/api/countries', json={"name": "New Country", "code": "NC"})
+    @country_city_bp.route('/countries/<country_code>', methods=['DELETE'])
+    def delete_country(country_code):
+        deleted = country_manager.delete(country_code)
+        if deleted:
+            return '', 204
+        else:
+            return jsonify({"error": "Country not found"}), 404
 
-            self.assertEqual(response.status_code, 201)
-            self.assertEqual(response.json, mock_saved_country.to_dict())
-
-    @patch('api.country_city_routes.country_manager', spec=MagicMock)
-    def test_update_country(self, mock_country_manager):
-        mock_updated_country = Country(name="Updated Country", code="C1")
-        mock_country_manager.update.return_value = mock_updated_country
-
-        with app.test_client() as client:
-            response = client.put('/api/countries/C1', json={"name": "Updated Country"})
-
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.json, mock_updated_country.to_dict())
-
-    @patch('api.country_city_routes.country_manager', spec=MagicMock)
-    def test_delete_country(self, mock_country_manager):
-        mock_country_manager.delete.return_value = True
-
-        with app.test_client() as client:
-            response = client.delete('/api/countries/C1')
-
-            self.assertEqual(response.status_code, 204)
-
-if __name__ == '__main__':
-    unittest.main()
+    return country_city_bp
