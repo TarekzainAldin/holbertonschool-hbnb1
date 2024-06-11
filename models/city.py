@@ -1,17 +1,12 @@
-#!/usr/bin/python3
-"""Define city class"""
 import json 
 from .base_model import BaseModel
 import uuid
 from datetime import datetime
 
-
 class City(BaseModel):
-    """Represents a city"""
     def __init__(self, name, country):
-        """initialize a new city"""
         super().__init__()
-        self.id = uuid.uuid4()
+        self.id = str(uuid.uuid4())  # Convert uuid to string
         self.name = name
         self.country_id = country.id
         self.country = country
@@ -20,14 +15,13 @@ class City(BaseModel):
         self.places = []
 
     def add_place(self, place):
-         """Add a place to the city"""
-         if place not in self.places:
-             self.places.append(place)
-             self.updated_at = datetime.now()
+        if place not in self.places:
+            self.places.append(place)
+            self.updated_at = datetime.now()
 
     def get_place(self):
-        """Get all places in the city"""
         return self.places
+
     def to_json(self):
         return {
             "id": self.id,
@@ -51,4 +45,3 @@ class City(BaseModel):
     def save_to_json(self, filename):
         with open(filename, 'w') as file:
             json.dump(self.to_json(), file)
-            

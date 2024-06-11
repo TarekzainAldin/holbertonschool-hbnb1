@@ -1,12 +1,10 @@
-#!/usr/bin/python3
-"""Define Coutnry class"""
 from .base_model import BaseModel
 
-
 class Country(BaseModel):
-    def __init__(self, name):
+    def __init__(self, name, code):
         super().__init__()
         self.name = name
+        self.code = code
         self.cities = []
 
     def add_city(self, city):

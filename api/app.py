@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify
 from models.user import User
 from persistence.data_manager import DataManager
+from api.country_city_routes import country_city_bp
 import re
 from datetime import datetime
 
 app = Flask(__name__)
+app.register_blueprint(country_city_bp, url_prefix='/api')
 data_manager = DataManager()
 
 def is_valid_email(email):
