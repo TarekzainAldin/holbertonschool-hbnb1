@@ -1,10 +1,8 @@
 from datetime import datetime
 
-from models.user import User
-
 class Place:
-    def __init__(self, name, description, address, city_id, latitude, longitude, host_id, 
-                 number_of_rooms, number_of_bathrooms, price_per_night, max_guests):
+    def __init__(self, name, description, address, city_id, latitude, longitude, host_id, number_of_rooms, number_of_bathrooms, price_per_night, max_guests, amenity_ids):
+        self.id = None
         self.name = name
         self.description = description
         self.address = address
@@ -16,21 +14,25 @@ class Place:
         self.number_of_bathrooms = number_of_bathrooms
         self.price_per_night = price_per_night
         self.max_guests = max_guests
-        self.amenities = []  # List to hold Amenity objects
-        self.reviews = []  # List to hold Review objects
+        self.amenity_ids = amenity_ids
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
 
-    def add_amenity(self, amenity):
-        self.amenities.append(amenity)
-
-    def add_review(self, review):
-        self.reviews.append(review)
-
-    def __repr__(self):
-        return f"Place(name='{self.name}', city_id='{self.city_id}', host_id='{self.host_id}')"
-
-    def set_host(self, host):
-        if not isinstance(host, User):
-            raise ValueError("Host must be a User object")
-        self.host_id = host.email
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'address': self.address,
+            'city_id': self.city_id,
+            'latitude': self.latitude,
+            'longitude': self.longitude,
+            'host_id': self.host_id,
+            'number_of_rooms': self.number_of_rooms,
+            'number_of_bathrooms': self.number_of_bathrooms,
+            'price_per_night': self.price_per_night,
+            'max_guests': self.max_guests,
+            'amenity_ids': self.amenity_ids,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }

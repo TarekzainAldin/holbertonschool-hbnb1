@@ -1,37 +1,61 @@
-class AmenityDataManager:
+# persistence/amenity_data_manager.py
+
+from persistence.IPersistenceManager import IPersistenceManager
+from models.amenity import Amenity
+
+class AmenityDataManager(IPersistenceManager):
     def __init__(self):
-        self.amenities = []
+        self.data = {}
 
-    def save(self, amenity):
-        amenity['id'] = str(len(self.amenities) + 1)
-        self.amenities.append(amenity)
-        return amenity
+    def save(self, entity):
+        if not isinstance(entity, Amenity):
+            return {'error': 'Invalid entity type'}
+        entity_type = type(entity).__name__
+        if entity_type not in self.data:
+            self.data[entity_type] = []
+        entity_id = len(self.data[entity_type]) + 1
+        setattr(entity, 'id', entity_id)
+        self.data[entity_type].append(entity)
+        return {'id': entity_id}
 
-    def get(self, amenity_id):
-        for amenity in self.amenities:
-            if amenity['id'] == amenity_id:
-                return amenity
+    def get(self, entity_id):
+        if 'Amenity' in self.data:
+            for entity in self.data['Amenity']:
+                if getattr(entity, 'id', None) == entity_id:
+                    return entity
         return None
+
+    def update(self, entity):
+        if not isinstance(entity, Amenity):
+            return False
+        if 'Amenity' in self.data:
+            for idx, e in enumerate(self.data['Amenity']):
+                if getattr(e, 'id', None) == getattr(entity, 'id', None):
+                    self.data['Amenity'][idx] = entity
+                    return True
+        return False
+
+    def delete(self, entity_id):
+        if 'Amenity' in self.data:
+            for idx, entity in enumerate(self.data['Amenity']):
+                if getattr(entity, 'id', None) == entity_id:
+                    del self.data['Amenity'][idx]
+                    return True
+        return False
 
     def get_all(self):
-        return self.amenities
+        return self.data.get('Amenity', [])
+
+    def exists(self, name):
+        if 'Amenity' in self.data:
+            for entity in self.data['Amenity']:
+                if entity.name == name:
+                    return True
+        return False
 
     def get_by_name(self, name):
-        for amenity in self.amenities:
-            if amenity['name'] == name:
-                return amenity
+        if 'Amenity' in self.data:
+            for entity in self.data['Amenity']:
+                if entity.name == name:
+                    return entity
         return None
-
-    def update(self, updated_amenity):
-        for idx, amenity in enumerate(self.amenities):
-            if amenity['id'] == updated_amenity['id']:
-                self.amenities[idx] = updated_amenity
-                return True
-        return False
-
-    def delete(self, amenity_id):
-        for idx, amenity in enumerate(self.amenities):
-            if amenity['id'] == amenity_id:
-                del self.amenities[idx]
-                return True
-        return False

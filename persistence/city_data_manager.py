@@ -1,44 +1,53 @@
-from models.city import City
 from persistence.IPersistenceManager import IPersistenceManager
-from datetime import datetime
-import uuid
+from models.city import City
 
 class CityDataManager(IPersistenceManager):
-    def __init__(self):
-        self.cities = []
+    def __init__(self, countries):
+        self.data = {}
+        self.countries = {country.code: country for country in countries}
 
-    def save(self, city):
-        if any(existing_city.name == city.name and existing_city.country_id == city.country_id for existing_city in self.cities):
-            raise ValueError("City already exists in this country")
-        city.id = str(uuid.uuid4())
-        city.created_at = datetime.now()
-        city.updated_at = datetime.now()
-        self.cities.append(city)
-        return city
+    def save(self, entity):
+        if not isinstance(entity, City):
+            return {'error': 'Invalid entity type'}
+        if entity.country_code not in self.countries:
+            return {'error': 'Invalid country code'}
+        entity_type = type(entity).__name__
+        if entity_type not in self.data:
+            self.data[entity_type] = []
+        entity_id = len(self.data[entity_type]) + 1
+        setattr(entity, 'id', entity_id)
+        self.data[entity_type].append(entity)
+        return {'id': entity_id}
 
-    def get(self, city_id):
-        for city in self.cities:
-            if city.id == city_id:
-                return city
+    def get(self, entity_id):
+        if 'City' in self.data:
+            for entity in self.data['City']:
+                if getattr(entity, 'id', None) == entity_id:
+                    return entity
         return None
 
-    def get_all(self):
-        return self.cities
-
-    def update(self, updated_city):
-        for idx, city in enumerate(self.cities):
-            if city.id == updated_city.id:
-                updated_city.updated_at = datetime.now()
-                self.cities[idx] = updated_city
-                return updated_city
-        return None
-
-    def delete(self, city_id):
-        for idx, city in enumerate(self.cities):
-            if city.id == city_id:
-                del self.cities[idx]
-                return True
+    def update(self, entity):
+        if not isinstance(entity, City):
+            return False
+        if 'City' in self.data:
+            for idx, e in enumerate(self.data['City']):
+                if getattr(e, 'id', None) == getattr(entity, 'id', None):
+                    self.data['City'][idx] = entity
+                    return True
         return False
 
-    def get_cities_by_country(self, country_id):
-        return [city for city in self.cities if city.country_id == country_id]
+    def delete(self, entity_id):
+        if 'City' in self.data:
+            for idx, entity in enumerate(self.data['City']):
+                if getattr(entity, 'id', None) == entity_id:
+                    del self.data['City'][idx]
+                    return True
+        return False
+
+    def get_all(self):
+        return self.data.get('City', [])
+
+    def get_by_country(self, country_code):
+        if 'City' in self.data:
+            return [city for city in self.data['City'] if city.country_code == country_code]
+        return []
