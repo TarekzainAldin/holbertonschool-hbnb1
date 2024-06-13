@@ -3,12 +3,12 @@
 
 from flask import request
 from flask_restx import Namespace, Resource, fields
-from persistence.data_manager import DataManager
+from persistence.place_data_manager import PlaceDataManager
 import uuid
 from datetime import datetime
 
 ns = Namespace('places', description='Operations related to places')
-data_manager = DataManager()
+data_manager = PlaceDataManager()
 
 # Model definition for a Place
 place_model = ns.model('Place', {

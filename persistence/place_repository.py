@@ -1,17 +1,18 @@
-from persistence.IPersistenceManager import IPersistenceManager
-from models.place import Place
+#!/usr/bin/python3
+# Persistence for places
 
-class PlaceDataManager(IPersistenceManager):
+from models.place import Place
+from persistence.IPersistenceManager import IPersistenceManager
+
+class PlaceRepository(IPersistenceManager):
+    """Class for managing the persistence of places."""
     def __init__(self):
         self.places = {}
         self.next_id = 1
 
     def save(self, place):
         """Saves a place."""
-        if not isinstance(place, Place):
-            raise ValueError("Can only save instances of Place")
-        
-        if place.place_id is None:
+        if not hasattr(place, 'place_id'):
             place.place_id = self.next_id
             self.next_id += 1
         self.places[place.place_id] = place
