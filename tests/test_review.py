@@ -1,39 +1,49 @@
-# tests/test_review.py
+#!/usr/bin/python3
 
 import unittest
-from models.review import Review
+from model.review import Review  # Assure-toi d'importer correctement la classe Review
 
-class TestReviewModel(unittest.TestCase):
+class TestReview(unittest.TestCase):
+
     def setUp(self):
-        # Resetting the class attribute before each test
-        Review._reviews = []
+        # Créer une instance de Review pour une utilisation dans les tests
+        self.review = Review(
+            user_id="user123",
+            place_id="place456",
+            rating=5,
+            comment="Great experience!"
+        )
 
-    def test_review_initialization(self):
-        review = Review(review_id=1, user_id=101, place_id=202, rating=4.5, comment="Great place!")
-        self.assertEqual(review.review_id, 1)
-        self.assertEqual(review.user_id, 101)
-        self.assertEqual(review.place_id, 202)
-        self.assertEqual(review.rating, 4.5)
-        self.assertEqual(review.comment, "Great place!")
+    def test_creation_review(self):
+        # Vérifier que le review a été créé avec les attributs corrects
+        self.assertTrue(self.review.review_id)
+        self.assertEqual(self.review.user_id, "user123")
+        self.assertEqual(self.review.place_id, "place456")
+        self.assertEqual(self.review.rating, 5)
+        self.assertEqual(self.review.comment, "Great experience!")
 
-    def test_calculate_average_rating_no_reviews(self):
-        average_rating = Review.calculate_average_rating()
-        self.assertEqual(average_rating, 0.0)
+        # Vérifier que les horodatages de création et de mise à jour sont définis et qu'ils sont proches dans le temps
+        self.assertIsNotNone(self.review.created_at)
+        self.assertIsNotNone(self.review.updated_at)
+        self.assertAlmostEqual((self.review.updated_at - self.review.created_at).total_seconds(), 0, delta=1)
 
-    def test_calculate_average_rating_with_reviews(self):
-        Review(review_id=1, user_id=101, place_id=202, rating=4.5, comment="Great place!")
-        Review(review_id=2, user_id=102, place_id=203, rating=3.5, comment="Good place.")
-        average_rating = Review.calculate_average_rating()
-        self.assertAlmostEqual(average_rating, 4.0, places=1)
+    def test_to_dict(self):
+        # Vérifier que la méthode to_dict renvoie un dictionnaire contenant les bonnes clés
+        review_dict = self.review.to_dict()
+        self.assertIsInstance(review_dict, dict)
+        self.assertIn('review_id', review_dict)
+        self.assertIn('user_id', review_dict)
+        self.assertIn('place_id', review_dict)
+        self.assertIn('rating', review_dict)
+        self.assertIn('comment', review_dict)
+        self.assertIn('created_at', review_dict)
+        self.assertIn('updated_at', review_dict)
 
-    def test_multiple_reviews(self):
-        Review(review_id=1, user_id=101, place_id=202, rating=4.5, comment="Great place!")
-        Review(review_id=2, user_id=102, place_id=203, rating=3.5, comment="Good place.")
-        Review(review_id=3, user_id=103, place_id=204, rating=5.0, comment="Excellent place!")
-        self.assertEqual(len(Review._reviews), 3)
-        average_rating = Review.calculate_average_rating()
-        self.assertAlmostEqual(average_rating, 4.33, places=2)
+        # Vérifier que les valeurs du dictionnaire correspondent aux attributs du review
+        self.assertEqual(review_dict['user_id'], self.review.user_id)
+        self.assertEqual(review_dict['place_id'], self.review.place_id)
+        self.assertEqual(review_dict['rating'], self.review.rating)
+        self.assertEqual(review_dict['comment'], self.review.comment)
 
 if __name__ == '__main__':
     unittest.main()
-    

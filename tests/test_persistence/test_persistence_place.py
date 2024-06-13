@@ -7,7 +7,7 @@ import os
 # Ajouter le répertoire racine du projet au chemin d'importation
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
-from models.place import Place
+from model.place import Place
 from persistence.place_repository import PlaceRepository
 
 class TestPlaceRepository(unittest.TestCase):
