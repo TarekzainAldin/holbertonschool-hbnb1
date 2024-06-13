@@ -1,27 +1,18 @@
-#!/usr/bin/python3
-# Persistence Interface
+
 
 from abc import ABC, abstractmethod
 
 class IPersistenceManager(ABC):
-    """Interface for defining persistence manager methods."""
-
     @abstractmethod
-    def save(self, entity):
+    def save(self,entity):
         pass
 
     @abstractmethod
-    def get(self, entity_id):
+    def get(self, entity_id, entity_type):
         pass
-
     @abstractmethod
-    def update(self, entity_id, new_data):
+    def update(self, entity):
         pass
-
     @abstractmethod
-    def delete(self, entity_id):
-        pass
-
-    @abstractmethod
-    def get_all(self):
-        pass
+    def delete(self, entity_id,entyty_type):
+        pass 

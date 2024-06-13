@@ -4,16 +4,16 @@ from unittest.mock import MagicMock
 import sys
 import os
 
-# Ajouter le répertoire racine du projet au chemin d'importation
+# Add the project's root directory to the import path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 from models.place import Place
-from persistence.place_repository import PlaceRepository
+from persistence.place_data_manager import PlaceDataManager
 
-class TestPlaceRepository(unittest.TestCase):
+class TestPlaceDataManager(unittest.TestCase):
 
     def setUp(self):
-        self.repo = PlaceRepository()
+        self.repo = PlaceDataManager()
         self.place = Place(name="Sample Place", description="A nice place", address="123 Main St",
                            city_id=1, latitude=0.0, longitude=0.0, host_id=1, number_of_rooms=2,
                            number_of_bathrooms=1, price_per_night=100, max_guests=4, amenity_ids=[])
