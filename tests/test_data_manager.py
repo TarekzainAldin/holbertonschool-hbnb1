@@ -1,53 +1,214 @@
 import unittest
-from datetime import datetime
-from models.user import User
-from persistence.data_manager import DataManager
+import sys
+import os
+from data_manager import DataManager
 
-class TestDataPersistence(unittest.TestCase):
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
+class TestDataManager(unittest.TestCase):
+
     def setUp(self):
         self.data_manager = DataManager()
 
-    def test_save_and_get(self):
-        # Create a user
-        user = User(email="alice@example.com", first_name="Alice", last_name="Smith")
-        saved_id = self.data_manager.save(user)['id']
+    def test_save_place(self):
+        place_data = {
+            'name': 'Test Place',
+            'description': 'A place for testing',
+            'address': '123 Test St',
+            'city_id': '1',
+            'latitude': 40.7128,
+            'longitude': -74.0060,
+            'host_id': '1',
+            'number_of_rooms': 3,
+            'number_of_bathrooms': 2,
+            'price_per_night': 100.0,
+            'max_guests': 4,
+            'amenity_ids': ['1', '2']
+        }
+        place_id = self.data_manager.save_place(place_data)
+        self.assertIsNotNone(place_id)
+        place = self.data_manager.get_place(place_id)
+        self.assertEqual(place.name, 'Test Place')
 
-        # Retrieve the user by ID
-        retrieved_user = self.data_manager.get(saved_id, "User")
+    def test_update_place(self):
+        place_data = {
+            'name': 'Test Place',
+            'description': 'A place for testing',
+            'address': '123 Test St',
+            'city_id': '1',
+            'latitude': 40.7128,
+            'longitude': -74.0060,
+            'host_id': '1',
+            'number_of_rooms': 3,
+            'number_of_bathrooms': 2,
+            'price_per_night': 100.0,
+            'max_guests': 4,
+            'amenity_ids': ['1', '2']
+        }
+        place_id = self.data_manager.save_place(place_data)
+        new_data = {'name': 'Updated Place'}
+        self.data_manager.update_place(place_id, new_data)
+        place = self.data_manager.get_place(place_id)
+        self.assertEqual(place.name, 'Updated Place')
 
-        self.assertIsNotNone(retrieved_user)
-        self.assertEqual(retrieved_user.email, "alice@example.com")
-        self.assertEqual(retrieved_user.first_name, "Alice")
-        self.assertEqual(retrieved_user.last_name, "Smith")
+    def test_delete_place(self):
+        place_data = {
+            'name': 'Test Place',
+            'description': 'A place for testing',
+            'address': '123 Test St',
+            'city_id': '1',
+            'latitude': 40.7128,
+            'longitude': -74.0060,
+            'host_id': '1',
+            'number_of_rooms': 3,
+            'number_of_bathrooms': 2,
+            'price_per_night': 100.0,
+            'max_guests': 4,
+            'amenity_ids': ['1', '2']
+        }
+        place_id = self.data_manager.save_place(place_data)
+        self.data_manager.delete_place(place_id)
+        place = self.data_manager.get_place(place_id)
+        self.assertIsNone(place)
 
-    def test_update(self):
-        # Create a user
-        user = User(email="bob@example.com", first_name="Bob", last_name="Johnson")
-        saved_id = self.data_manager.save(user)['id']
+    def test_save_user(self):
+        user_data = {
+            'username': 'testuser',
+            'email': 'testuser@example.com',
+            'password': 'password'
+        }
+        user_id = self.data_manager.save_user(user_data)
+        self.assertIsNotNone(user_id)
+        user = self.data_manager.get_user(user_id)
+        self.assertEqual(user.username, 'testuser')
 
-        # Retrieve the user by ID
-        updated_user = User(email="bob.updated@example.com", first_name="Bob Updated", last_name="Johnson")
-        # Manually set the ID for updated_user
-        setattr(updated_user, 'id', saved_id)
+    def test_update_user(self):
+        user_data = {
+            'username': 'testuser',
+            'email': 'testuser@example.com',
+            'password': 'password'
+        }
+        user_id = self.data_manager.save_user(user_data)
+        new_data = {'username': 'updateduser'}
+        self.data_manager.update_user(user_id, new_data)
+        user = self.data_manager.get_user(user_id)
+        self.assertEqual(user.username, 'updateduser')
 
-        self.assertTrue(self.data_manager.update(updated_user))
+    def test_delete_user(self):
+        user_data = {
+            'username': 'testuser',
+            'email': 'testuser@example.com',
+            'password': 'password'
+        }
+        user_id = self.data_manager.save_user(user_data)
+        self.data_manager.delete_user(user_id)
+        user = self.data_manager.get_user(user_id)
+        self.assertIsNone(user)
 
-        # Retrieve the user again and check if it's updated
-        retrieved_user = self.data_manager.get(saved_id, "User")
-        self.assertEqual(retrieved_user.email, "bob.updated@example.com")
-        self.assertEqual(retrieved_user.first_name, "Bob Updated")
+    def test_save_review(self):
+        review_data = {
+            'user_id': '1',
+            'place_id': '1',
+            'rating': 5,
+            'comment': 'Great place!'
+        }
+        review_id = self.data_manager.save_review(review_data)
+        self.assertIsNotNone(review_id)
+        review = self.data_manager.get_review(review_id)
+        self.assertEqual(review.comment, 'Great place!')
 
-    def test_delete(self):
-        # Create a user
-        user = User(email="charlie@example.com", first_name="Charlie", last_name="Brown")
-        saved_id = self.data_manager.save(user)['id']
+    def test_update_review(self):
+        review_data = {
+            'user_id': '1',
+            'place_id': '1',
+            'rating': 5,
+            'comment': 'Great place!'
+        }
+        review_id = self.data_manager.save_review(review_data)
+        new_data = {'comment': 'Updated comment'}
+        self.data_manager.update_review(review_id, new_data)
+        review = self.data_manager.get_review(review_id)
+        self.assertEqual(review.comment, 'Updated comment')
 
-        # Delete the user
-        self.assertTrue(self.data_manager.delete(saved_id, "User"))
+    def test_delete_review(self):
+        review_data = {
+            'user_id': '1',
+            'place_id': '1',
+            'rating': 5,
+            'comment': 'Great place!'
+        }
+        review_id = self.data_manager.save_review(review_data)
+        self.data_manager.delete_review(review_id)
+        review = self.data_manager.get_review(review_id)
+        self.assertIsNone(review)
 
-        # Try to retrieve the deleted user
-        retrieved_user = self.data_manager.get(saved_id, "User")
-        self.assertIsNone(retrieved_user)
+    def test_save_amenity(self):
+        amenity_data = {'name': 'WiFi'}
+        amenity_id = self.data_manager.save_amenity(amenity_data)
+        self.assertIsNotNone(amenity_id)
+        amenity = self.data_manager.get_amenity(amenity_id)
+        self.assertEqual(amenity.name, 'WiFi')
+
+    def test_update_amenity(self):
+        amenity_data = {'name': 'WiFi'}
+        amenity_id = self.data_manager.save_amenity(amenity_data)
+        new_data = {'name': 'Updated WiFi'}
+        self.data_manager.update_amenity(amenity_id, new_data)
+        amenity = self.data_manager.get_amenity(amenity_id)
+        self.assertEqual(amenity.name, 'Updated WiFi')
+
+    def test_delete_amenity(self):
+        amenity_data = {'name': 'WiFi'}
+        amenity_id = self.data_manager.save_amenity(amenity_data)
+        self.data_manager.delete_amenity(amenity_id)
+        amenity = self.data_manager.get_amenity(amenity_id)
+        self.assertIsNone(amenity)
+
+    def test_save_country(self):
+        country_data = {'name': 'USA'}
+        country_id = self.data_manager.save_country(country_data)
+        self.assertIsNotNone(country_id)
+        country = self.data_manager.get_country(country_id)
+        self.assertEqual(country.name, 'USA')
+
+    def test_update_country(self):
+        country_data = {'name': 'USA'}
+        country_id = self.data_manager.save_country(country_data)
+        new_data = {'name': 'Updated Country'}
+        self.data_manager.update_country(country_id, new_data)
+        country = self.data_manager.get_country(country_id)
+        self.assertEqual(country.name, 'Updated Country')
+
+    def test_delete_country(self):
+        country_data = {'name': 'USA'}
+        country_id = self.data_manager.save_country(country_data)
+        self.data_manager.delete_country(country_id)
+        country = self.data_manager.get_country(country_id)
+        self.assertIsNone(country)
+
+    def test_save_city(self):
+        city_data = {'name': 'New York', 'country_id': '1'}
+        city_id = self.data_manager.save_city(city_data)
+        self.assertIsNotNone(city_id)
+        city = self.data_manager.get_city(city_id)
+        self.assertEqual(city.name, 'New York')
+
+    def test_update_city(self):
+        city_data = {'name': 'New York', 'country_id': '1'}
+        city_id = self.data_manager.save_city(city_data)
+        new_data = {'name': 'Updated City'}
+        self.data_manager.update_city(city_id, new_data)
+        city = self.data_manager.get_city(city_id)
+        self.assertEqual(city.name, 'Updated City')
+
+    def test_delete_city(self):
+        city_data = {'name': 'New York', 'country_id': '1'}
+        city_id = self.data_manager.save_city(city_data)
+        self.data_manager.delete_city(city_id)
+        city = self.data_manager.get_city(city_id)
+        self.assertIsNone(city)
+
 
 if __name__ == '__main__':
     unittest.main()

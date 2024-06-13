@@ -1,27 +1,53 @@
-# tests/test_place.py
 import unittest
-from datetime import datetime
-from models.place import Place
+import sys
+import os
+from model.place import Place
+
+# Ajoutez le répertoire parent au PYTHONPATH
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 
 class TestPlace(unittest.TestCase):
+
     def test_place_creation(self):
-        place = Place("Cozy Apartment", "A lovely apartment", "123 Main St", "city_1", 40.7128, -74.0060,
-                      "host@example.com", 2, 1, 100, 4)
-        self.assertEqual(place.name, "Cozy Apartment")
-        self.assertEqual(place.description, "A lovely apartment")
-        self.assertEqual(place.city_id, "city_1")
-        self.assertEqual(place.host_id, "host@example.com")
-        self.assertIsInstance(place.created_at, datetime)
-        self.assertIsInstance(place.updated_at, datetime)
+        place = Place(
+            name='Test Place',
+            description='A place for testing',
+            address='123 Test St',
+            city_id='1',
+            latitude=40.7128,
+            longitude=-74.0060,
+            host_id='1',
+            number_of_rooms=3,
+            number_of_bathrooms=2,
+            price_per_night=100.0,
+            max_guests=4,
+            amenity_ids=['1', '2']
+        )
+        self.assertEqual(place.name, 'Test Place')
+        self.assertIsNotNone(place.place_id)
+        self.assertIsNotNone(place.created_at)
+        self.assertIsNotNone(place.updated_at)
 
-    def test_add_amenity(self):
-        place = Place("Cozy Apartment", "A lovely apartment", "123 Main St", "city_1", 40.7128, -74.0060,
-                      "host@example.com", 2, 1, 100, 4)
-        place.add_amenity("Wi-Fi")
-        self.assertEqual(len(place.amenities), 1)
-        self.assertEqual(place.amenities[0], "Wi-Fi")
+    def test_to_dict(self):
+        place = Place(
+            name='Test Place',
+            description='A place for testing',
+            address='123 Test St',
+            city_id='1',
+            latitude=40.7128,
+            longitude=-74.0060,
+            host_id='1',
+            number_of_rooms=3,
+            number_of_bathrooms=2,
+            price_per_night=100.0,
+            max_guests=4,
+            amenity_ids=['1', '2']
+        )
+        place_dict = place.to_dict()
+        self.assertEqual(place_dict['name'], 'Test Place')
+        self.assertEqual(place_dict['place_id'], place.place_id)
 
-    # Add more tests for other methods and business logic
 
 if __name__ == '__main__':
     unittest.main()

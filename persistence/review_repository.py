@@ -1,24 +1,21 @@
-# persistence/review_repository.py
+#!/usr/bin/python3
+# Persistence for reviews
 
-from models.review import Review
+from datetime import datetime
+from model.review import Review
+from persistence.ipersistence_manager import IPersistenceManager
 
-class ReviewRepository:
+
+class ReviewRepository(IPersistenceManager):
+    """Class for managing the persistence of reviews."""
     def __init__(self):
         self.reviews = {}
-        self.next_id = 1
 
-    def save(self, review_data):
+    def save(self, review):
         """Saves a review."""
-        review_id = str(self.next_id)
-        review = Review(
-            review_id=review_id,
-            user_id=review_data['user_id'],
-            place_id=review_data['place_id'],
-            rating=review_data['rating'],
-            comment=review_data.get('comment', ''),
-        )
-        self.reviews[review_id] = review
-        self.next_id += 1
+        review.created_at = datetime.now()
+        review.updated_at = datetime.now()
+        self.reviews[review.review_id] = review
 
     def get(self, review_id):
         """Fetches a review."""
@@ -33,10 +30,9 @@ class ReviewRepository:
         if review_id in self.reviews:
             review = self.reviews[review_id]
             for key, value in new_review_data.items():
-                if hasattr(review, key):
-                    setattr(review, key, value)
-                else:
-                    raise AttributeError(f"Invalid field: {key}")
+                setattr(review, key, value)
+            review.updated_at = datetime.now()
+            self.save(review)
             return True
         return False
 

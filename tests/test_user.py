@@ -1,24 +1,29 @@
-# tests/test_user.py
 import unittest
-from datetime import datetime
-from models.user import User
+import sys
+import os
+from model.user import User
+
+# Ajoutez le répertoire parent au PYTHONPATH
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 
 class TestUser(unittest.TestCase):
+
     def test_user_creation(self):
-        user = User("test@example.com", "John", "Doe")
-        self.assertEqual(user.email, "test@example.com")
-        self.assertEqual(user.first_name, "John")
-        self.assertEqual(user.last_name, "Doe")
-        self.assertIsInstance(user.created_at, datetime)
-        self.assertIsInstance(user.updated_at, datetime)
+        user = User(username='testuser', email='testuser@example.com',
+                    password='password')
+        self.assertEqual(user.username, 'testuser')
+        self.assertIsNotNone(user.user_id)
+        self.assertIsNotNone(user.created_at)
+        self.assertIsNotNone(user.updated_at)
 
-    def test_add_place(self):
-        user = User("test@example.com", "John", "Doe")
-        user.add_place("New Place")
-        self.assertEqual(len(user.places), 1)
-        self.assertEqual(user.places[0], "New Place")
+    def test_to_dict(self):
+        user = User(username='testuser', email='testuser@example.com',
+                    password='password')
+        user_dict = user.to_dict()
+        self.assertEqual(user_dict['username'], 'testuser')
+        self.assertEqual(user_dict['user_id'], user.user_id)
 
-    # Add more tests for other methods and business logic
 
 if __name__ == '__main__':
     unittest.main()

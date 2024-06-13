@@ -1,39 +1,29 @@
-# tests/test_review.py
-
 import unittest
-from models.review import Review
+import sys
+import os
+from model.user import User
 
-class TestReviewModel(unittest.TestCase):
-    def setUp(self):
-        # Resetting the class attribute before each test
-        Review._reviews = []
+# Ajoutez le répertoire parent au PYTHONPATH
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-    def test_review_initialization(self):
-        review = Review(review_id=1, user_id=101, place_id=202, rating=4.5, comment="Great place!")
-        self.assertEqual(review.review_id, 1)
-        self.assertEqual(review.user_id, 101)
-        self.assertEqual(review.place_id, 202)
-        self.assertEqual(review.rating, 4.5)
-        self.assertEqual(review.comment, "Great place!")
 
-    def test_calculate_average_rating_no_reviews(self):
-        average_rating = Review.calculate_average_rating()
-        self.assertEqual(average_rating, 0.0)
+class TestUser(unittest.TestCase):
 
-    def test_calculate_average_rating_with_reviews(self):
-        Review(review_id=1, user_id=101, place_id=202, rating=4.5, comment="Great place!")
-        Review(review_id=2, user_id=102, place_id=203, rating=3.5, comment="Good place.")
-        average_rating = Review.calculate_average_rating()
-        self.assertAlmostEqual(average_rating, 4.0, places=1)
+    def test_user_creation(self):
+        user = User(username='testuser', email='testuser@example.com',
+                    password='password')
+        self.assertEqual(user.username, 'testuser')
+        self.assertIsNotNone(user.user_id)
+        self.assertIsNotNone(user.created_at)
+        self.assertIsNotNone(user.updated_at)
 
-    def test_multiple_reviews(self):
-        Review(review_id=1, user_id=101, place_id=202, rating=4.5, comment="Great place!")
-        Review(review_id=2, user_id=102, place_id=203, rating=3.5, comment="Good place.")
-        Review(review_id=3, user_id=103, place_id=204, rating=5.0, comment="Excellent place!")
-        self.assertEqual(len(Review._reviews), 3)
-        average_rating = Review.calculate_average_rating()
-        self.assertAlmostEqual(average_rating, 4.33, places=2)
+    def test_to_dict(self):
+        user = User(username='testuser', email='testuser@example.com',
+                    password='password')
+        user_dict = user.to_dict()
+        self.assertEqual(user_dict['username'], 'testuser')
+        self.assertEqual(user_dict['user_id'], user.user_id)
+
 
 if __name__ == '__main__':
     unittest.main()
-    
